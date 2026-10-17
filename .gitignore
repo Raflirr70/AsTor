@@ -1,0 +1,47 @@
+*alurpengerjaan.md
+
+# ===== Environment & secret =====
+.env
+.env.local
+.env.production
+
+# ===== Go =====
+backend/bin/
+backend/pkg/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+go.work.sum
+backend/uploads/
+backend/storage/
+
+# ===== Node / Vue =====
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== IDE / OS =====
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Docker =====
+# Simpan compose file & .env.example, tapi jangan data volume lokal
+*.log
+
+# ===== Log aktivitas (opsional — uncomment kalau mau dipakai) =====
+# log generate/
