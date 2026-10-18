@@ -5,10 +5,15 @@ import (
 	"log"
 
 	"astor/backend/config"
+	"astor/backend/handler"
+	"astor/backend/middleware"
 	"astor/backend/pkg/database"
 	"astor/backend/pkg/logger"
 	"astor/backend/pkg/ngrok"
+	"astor/backend/pkg/redis"
+	"astor/backend/repository"
 	router "astor/backend/route"
+	"astor/backend/usecase"
 
 	"github.com/joho/godotenv"
 )
@@ -41,13 +46,23 @@ func main() {
 	}
 	defer fwd.Close()
 
+	redisClient := redis.NewRedisClient(cfg.Redis)
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		log.Fatalf("failed to connect redis: %v", err)
+	}
+	logger.Info.Printf("Redis Connected")
+
 	// 3. Setup Dependency
 	//repo
+	authRepo := repository.NewAuthRepositoryImpl(db)
 	//usecase
+	authUC := usecase.NewAuthUsecaseImpl(authRepo, cfg.JWT, redisClient)
 	//handler
+	authHandler := handler.NewAuthHandler(authUC)
 
 	// 3. Setup Router
-	r := router.SetupRoutes()
+	r := router.SetupRoutes(authHandler, cfg.JWT.Secret, redisClient)
+	r.Use(middleware.ErrorHandler())
 	if err := r.Run(":" + cfg.Server.Port); err != nil {
 		log.Fatalf("failed to start server: %v", err)
 	}

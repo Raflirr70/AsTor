@@ -28,7 +28,7 @@ func (r *authRepositoryImpl) FindByNPM(ctx context.Context, npm string) (*entity
 }
 func (r *authRepositoryImpl) FindByUsername(ctx context.Context, username string) (*entity.Users, error) {
 	var user entity.Users
-	if err := r.db.WithContext(ctx).Preload("Role").Where("npm = ?", username).First(&user).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("Role").Where("username = ?", username).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
