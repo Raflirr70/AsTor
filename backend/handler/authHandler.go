@@ -29,8 +29,10 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 	// ubah menjadi entity
 	user := req.ToEntity()
+
+	adminID := c.GetUint("user_id")
 	// jalankan logika register
-	if err := h.authUsecase.Register(c.Request.Context(), user); err != nil {
+	if err := h.authUsecase.Register(c.Request.Context(), adminID, user); err != nil {
 		if errors.Is(err, entity.ErrAlreadyExists) {
 			response.BadRequest(c, "NPM already exists")
 			return

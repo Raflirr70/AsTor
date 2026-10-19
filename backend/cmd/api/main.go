@@ -54,9 +54,11 @@ func main() {
 
 	// 3. Setup Dependency
 	//repo
+	txRepo := repository.NewTransactionRepositoryImpl(db)
+	activityLogRepo := repository.NewActivityLogRepositoryImpl(db)
 	authRepo := repository.NewAuthRepositoryImpl(db)
 	//usecase
-	authUC := usecase.NewAuthUsecaseImpl(authRepo, cfg.JWT, redisClient)
+	authUC := usecase.NewAuthUsecaseImpl(authRepo, activityLogRepo, txRepo, cfg.JWT, redisClient)
 	//handler
 	authHandler := handler.NewAuthHandler(authUC)
 

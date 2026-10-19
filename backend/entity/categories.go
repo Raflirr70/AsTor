@@ -6,6 +6,6 @@ type Categories struct {
 	Code string `json:"code"`
 
 	// ForeignKey*
-	Specifications []Specifications `json:"specifications" gorm:"foreignKey:CategoryID;references:ID"`
-	Assets         []Assets         `json:"assets" gorm:"foreignKey:CategoryID;references:ID"`
+	CategorySpecifications []CategorySpecifications `json:"category_specifications" gorm:"foreignKey:CategoryID;references:ID"`
+	Assets                 []Assets                 `json:"assets" gorm:"foreignKey:CategoryID;references:ID"`
 }

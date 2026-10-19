@@ -1,6 +1,7 @@
 package main
 
 import (
+	"astor/backend/cmd/seed"
 	"astor/backend/config"
 	"astor/backend/entity"
 	"astor/backend/pkg/database"
@@ -35,6 +36,7 @@ func main() {
 		&entity.Locations{},
 		&entity.Categories{},
 		&entity.Specifications{},
+		&entity.CategorySpecifications{},
 		&entity.Assets{},
 		&entity.AssetSpecifications{},
 		&entity.Computers{},
@@ -50,5 +52,11 @@ func main() {
 	}
 	logger.Info.Println("Migration Success")
 
-	// seed.SeedRoles(db)
+	seed.SeedRoles(db)
+	seed.SeedUsers(db)
+	seed.SeedLocations(db)
+	seed.SeedLabs(db)
+	seed.SeedCategories(db)
+	seed.SeedSpecifications(db)
+	seed.SeedCategorySpecifications(db)
 }

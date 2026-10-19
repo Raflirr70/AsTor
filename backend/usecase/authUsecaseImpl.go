@@ -17,15 +17,17 @@ import (
 )
 
 type authUsecaseImpl struct {
-	authRepo dr.AuthRepository
-	JWT      config.JWTConfig
-	Redis    *redis.Client
+	authRepo        dr.AuthRepository
+	activityLogRepo dr.ActivityLogRepository
+	txRepo          dr.TransactionRepository
+	JWT             config.JWTConfig
+	Redis           *redis.Client
 }
 
-func NewAuthUsecaseImpl(authRepo dr.AuthRepository, JWT config.JWTConfig, Redis *redis.Client) du.AuthUsecase {
-	return &authUsecaseImpl{authRepo: authRepo, JWT: JWT, Redis: Redis}
+func NewAuthUsecaseImpl(authRepo dr.AuthRepository, activityLogRepo dr.ActivityLogRepository, txRepo dr.TransactionRepository, JWT config.JWTConfig, Redis *redis.Client) du.AuthUsecase {
+	return &authUsecaseImpl{authRepo: authRepo, activityLogRepo: activityLogRepo, txRepo: txRepo, JWT: JWT, Redis: Redis}
 }
-func (u *authUsecaseImpl) Register(ctx context.Context, user *entity.Users) error {
+func (u *authUsecaseImpl) Register(ctx context.Context, adminID uint, user *entity.Users) error {
 	existNpm, err := u.authRepo.FindByNPM(ctx, user.Npm)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return fmt.Errorf("failed to check NPM: %w", err)
@@ -46,7 +48,23 @@ func (u *authUsecaseImpl) Register(ctx context.Context, user *entity.Users) erro
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 	user.Password = string(hash)
-	return u.authRepo.Create(ctx, user)
+
+	return u.txRepo.WithinTransaction(ctx, func(ctx context.Context) error {
+		if err := u.authRepo.Create(ctx, user); err != nil {
+			return fmt.Errorf("failed to create user: %w", err)
+		}
+
+		log := &entity.ActivityLogs{
+			UserID:      adminID,
+			Action:      "USER_CREATED",
+			EntityType:  "Users",
+			EntityID:    user.ID,
+			Description: "User account created",
+		}
+
+		return u.activityLogRepo.Create(ctx, log)
+
+	})
 }
 func (u *authUsecaseImpl) Login(ctx context.Context, username, password string) (*entity.Users, string, error) {
 	exist, err := u.authRepo.FindByUsername(ctx, username)
@@ -58,6 +76,17 @@ func (u *authUsecaseImpl) Login(ctx context.Context, username, password string) 
 		return nil, "", fmt.Errorf("failed to find user: %w", err)
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(exist.Password), []byte(password)); err != nil {
+		log := &entity.ActivityLogs{
+			UserID:      exist.ID,
+			Action:      "LOGIN_FAILED",
+			EntityType:  "Users",
+			EntityID:    exist.ID,
+			Description: "User Failed login attempt",
+		}
+		if err := u.activityLogRepo.Create(ctx, log); err != nil {
+			return nil, "", errors.New("failed Create Log")
+		}
+
 		return nil, "", entity.ErrInvalidCredentials
 	}
 
@@ -69,21 +98,50 @@ func (u *authUsecaseImpl) Login(ctx context.Context, username, password string) 
 	redisKey := fmt.Sprintf("sessions:%d", exist.ID)
 	u.Redis.Set(ctx, redisKey, token, u.JWT.Expiration)
 
+	log := &entity.ActivityLogs{
+		UserID:      exist.ID,
+		Action:      "LOGIN_SUCCESS",
+		EntityType:  "Users",
+		EntityID:    exist.ID,
+		Description: "User successfully login",
+	}
+	if err := u.activityLogRepo.Create(ctx, log); err != nil {
+		return nil, "", errors.New("failed Create Log")
+	}
+
 	return exist, token, nil
 }
 func (u *authUsecaseImpl) Logout(ctx context.Context, token string) error {
-
 	claim, err := jwt.ParseToken(token, u.JWT.Secret)
 	if err != nil {
-		return errors.New("Invalid Token")
+		return errors.New("invalid token")
 	}
+
 	redisKey := fmt.Sprintf("sessions:%d", claim.UserID)
-	u.Redis.Del(ctx, redisKey)
+
+	if err := u.Redis.Del(ctx, redisKey).Err(); err != nil {
+		return fmt.Errorf("failed to delete session: %w", err)
+	}
 
 	ttl := time.Until(claim.ExpiresAt.Time)
 	if ttl > 0 {
 		blacklistKey := fmt.Sprintf("blacklist:%s", token)
-		u.Redis.Set(ctx, blacklistKey, "1", ttl)
+
+		if err := u.Redis.Set(ctx, blacklistKey, "1", ttl).Err(); err != nil {
+			return fmt.Errorf("failed to blacklist token: %w", err)
+		}
+	}
+
+	log := &entity.ActivityLogs{
+		UserID:      claim.UserID,
+		Action:      "LOGOUT_SUCCESS",
+		EntityType:  "Users",
+		EntityID:    claim.UserID,
+		Description: "Successful logout",
+	}
+
+	if err := u.activityLogRepo.Create(ctx, log); err != nil {
+		return fmt.Errorf("failed to create activity log: %w", err)
 	}
 
 	return nil
