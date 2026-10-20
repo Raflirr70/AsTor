@@ -10,7 +10,7 @@ type Loans struct {
 	LoansNpm   string    `json:"loans_npm"`
 	CreatedAt  time.Time `json:"created_at"`
 	Deadline   time.Time `json:"deadline"`
-	CheckedAt  time.Time `json:"checked_at"`
+	CheckedAt  time.Time `json:"checked_at" gorm:"autoCreateTime"`
 	ReturnedAt time.Time `json:"returned_at"`
 
 	// ForeignKey

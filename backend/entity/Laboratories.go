@@ -11,7 +11,7 @@ type Laboratories struct {
 	LocationID uint           `json:"location_id"`
 	Capasity   int            `json:"capasity"`
 	CreatedAt  time.Time      `json:"created_at"`
-	CheckedAt  time.Time      `json:"checked_at"`
+	CheckedAt  time.Time      `json:"checked_at" gorm:"autoCreateTime"`
 	UpdatedAt  time.Time      `json:"updated_at"`
 	DeletedAt  gorm.DeletedAt `json:"-"`
 

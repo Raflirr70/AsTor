@@ -123,3 +123,7 @@ func (u *laboratoryUsecaseImpl) Restore(ctx context.Context, adminID uint, labor
 		return u.activityLogRepo.Create(ctx, log)
 	})
 }
+
+func (u *laboratoryUsecaseImpl) GetAll(ctx context.Context) ([]entity.Laboratories, error) {
+	return u.laboratoryRepo.FetchAll(ctx)
+}

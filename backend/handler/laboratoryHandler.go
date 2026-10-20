@@ -81,7 +81,6 @@ func (h *LaboratoryHandler) Delete(c *gin.Context) {
 
 	response.OK(c, nil, "Laboratory deleted successfully")
 }
-
 func (h *LaboratoryHandler) Restore(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -105,4 +104,12 @@ func (h *LaboratoryHandler) Restore(c *gin.Context) {
 	}
 
 	response.OK(c, nil, "Laboratory restored successfully")
+}
+func (h *LaboratoryHandler) GetAll(c *gin.Context) {
+	labs, err := h.laboratoryUsecase.GetAll(c.Request.Context())
+	if err != nil {
+		response.Internal(c, "failed to fetch laboratories")
+		return
+	}
+	response.OK(c, dto.ToResponseLaboratoriesForAdminList(labs), "success")
 }

@@ -30,6 +30,7 @@ func SetupRoutes(
 		admin.POST("/users", authHandler.Register)
 
 		admin.POST("/labkoms", laboratoryHandler.Create)
+		admin.GET("/labkoms", laboratoryHandler.GetAll)
 		admin.PUT("/labkoms/:id", laboratoryHandler.Update)
 		admin.DELETE("/labkom/:id", laboratoryHandler.Delete)
 		admin.PATCH("/labkoms/:id/restore", laboratoryHandler.Restore)
