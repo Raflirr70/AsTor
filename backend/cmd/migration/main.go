@@ -59,4 +59,5 @@ func main() {
 	seed.SeedCategories(db)
 	seed.SeedSpecifications(db)
 	seed.SeedCategorySpecifications(db)
+	seed.SyncSequences(db)
 }

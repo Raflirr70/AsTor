@@ -207,3 +207,19 @@ func SeedCategorySpecifications(db *gorm.DB) {
 	}
 	log.Println("Seeder Specifications Success")
 }
+func SyncSequences(db *gorm.DB) {
+	tables := []string{
+		"roles", "users", "locations", "laboratories",
+		"categories", "specifications", "category_specifications",
+	}
+	for _, t := range tables {
+		// set sequence ke MAX(id) → insert berikutnya dapat MAX+1
+		if err := db.Exec(
+			"SELECT setval(pg_get_serial_sequence(?, 'id'), (SELECT COALESCE(MAX(id), 1) FROM "+t+"))",
+			t,
+		).Error; err != nil {
+			log.Printf("Failed to sync sequence %s: %v", t, err)
+		}
+	}
+	log.Println("Sequence Sync Success")
+}

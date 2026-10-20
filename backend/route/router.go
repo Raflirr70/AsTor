@@ -11,6 +11,7 @@ import (
 func SetupRoutes(
 	authHandler *handler.AuthHandler,
 	laboratoryHandler *handler.LaboratoryHandler,
+	specificationHandler *handler.SpecificationHandler,
 	jwt string,
 	redisClient *redis.Client,
 ) *gin.Engine {
@@ -34,6 +35,11 @@ func SetupRoutes(
 		admin.PUT("/labkoms/:id", laboratoryHandler.Update)
 		admin.DELETE("/labkom/:id", laboratoryHandler.Delete)
 		admin.PATCH("/labkoms/:id/restore", laboratoryHandler.Restore)
+
+		admin.GET("/specificaions", specificationHandler.GetAll)
+		admin.POST("/specificaions", specificationHandler.Create)
+		admin.PUT("/specificaion/:id", specificationHandler.Update)
+		admin.DELETE("/specificaion/:id", specificationHandler.Delete)
 	}
 
 	return r
