@@ -10,6 +10,7 @@ import (
 
 func SetupRoutes(
 	authHandler *handler.AuthHandler,
+	laboratoryHandler *handler.LaboratoryHandler,
 	jwt string,
 	redisClient *redis.Client,
 ) *gin.Engine {
@@ -27,6 +28,11 @@ func SetupRoutes(
 	admin.Use(middleware.RoleMiddleware("Admin"))
 	{
 		admin.POST("/users", authHandler.Register)
+
+		admin.POST("/labkoms", laboratoryHandler.Create)
+		admin.PUT("/labkoms/:id", laboratoryHandler.Update)
+		admin.DELETE("/labkom/:id", laboratoryHandler.Delete)
+		admin.PATCH("/labkoms/:id/restore", laboratoryHandler.Restore)
 	}
 
 	return r

@@ -57,13 +57,22 @@ func main() {
 	txRepo := repository.NewTransactionRepositoryImpl(db)
 	activityLogRepo := repository.NewActivityLogRepositoryImpl(db)
 	authRepo := repository.NewAuthRepositoryImpl(db)
+	locationRepo := repository.NewLocationRepositoryImpl(db)
+	laboratoryRepo := repository.NewLaboratoryRepositoryImpl(db)
 	//usecase
 	authUC := usecase.NewAuthUsecaseImpl(authRepo, activityLogRepo, txRepo, cfg.JWT, redisClient)
+	laboratoryUC := usecase.NewLaboratoryUsecaseImpl(laboratoryRepo, locationRepo, activityLogRepo, txRepo)
 	//handler
 	authHandler := handler.NewAuthHandler(authUC)
+	laboratoryHandler := handler.NewLaboratoryHandler(laboratoryUC)
 
 	// 3. Setup Router
-	r := router.SetupRoutes(authHandler, cfg.JWT.Secret, redisClient)
+	r := router.SetupRoutes(
+		authHandler,
+		laboratoryHandler,
+		cfg.JWT.Secret,
+		redisClient,
+	)
 	r.Use(middleware.ErrorHandler())
 	if err := r.Run(":" + cfg.Server.Port); err != nil {
 		log.Fatalf("failed to start server: %v", err)
