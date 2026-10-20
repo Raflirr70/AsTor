@@ -30,7 +30,7 @@ func (r *categoryRepositoryImpl) Delete(ctx context.Context, category *entity.Ca
 
 func (r *categoryRepositoryImpl) FetchAll(ctx context.Context) ([]entity.Categories, error) {
 	var categories []entity.Categories
-	if err := dbFromContext(ctx, r.db).WithContext(ctx).Preload("CategorySpecifications.Specification").Find(&categories).Error; err != nil {
+	if err := dbFromContext(ctx, r.db).WithContext(ctx).Preload("CategorySpecifications.Specification").Order("name ASC").Find(&categories).Error; err != nil {
 		return nil, err
 	}
 	return categories, nil

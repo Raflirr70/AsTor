@@ -30,7 +30,7 @@ func (r *specificationRepositoryImpl) Delete(ctx context.Context, specification 
 
 func (r *specificationRepositoryImpl) FetchAll(ctx context.Context) ([]entity.Specifications, error) {
 	var specs []entity.Specifications
-	if err := dbFromContext(ctx, r.db).WithContext(ctx).Find(&specs).Error; err != nil {
+	if err := dbFromContext(ctx, r.db).WithContext(ctx).Order("name ASC").Find(&specs).Error; err != nil {
 		return nil, err
 	}
 	return specs, nil

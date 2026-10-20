@@ -20,7 +20,7 @@ func (r *activityLogRepositoryImpl) Create(ctx context.Context, al *entity.Activ
 }
 func (r *activityLogRepositoryImpl) FetchAll(ctx context.Context) ([]entity.ActivityLogs, error) {
 	var als []entity.ActivityLogs
-	err := dbFromContext(ctx, r.db).WithContext(ctx).Find(als).Error
+	err := dbFromContext(ctx, r.db).WithContext(ctx).Order("created_at DESC").Find(als).Error
 	if err != nil {
 		return nil, err
 	}

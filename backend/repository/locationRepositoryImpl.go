@@ -30,7 +30,7 @@ func (r *locationRepositoryImpl) Delete(ctx context.Context, location *entity.Lo
 
 func (r *locationRepositoryImpl) FetchAll(ctx context.Context) ([]entity.Locations, error) {
 	var locations []entity.Locations
-	if err := dbFromContext(ctx, r.db).WithContext(ctx).Find(&locations).Error; err != nil {
+	if err := dbFromContext(ctx, r.db).WithContext(ctx).Order("name ASC").Find(&locations).Error; err != nil {
 		return nil, err
 	}
 	return locations, nil
