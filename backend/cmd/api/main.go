@@ -60,20 +60,25 @@ func main() {
 	locationRepo := repository.NewLocationRepositoryImpl(db)
 	laboratoryRepo := repository.NewLaboratoryRepositoryImpl(db)
 	specificationRepo := repository.NewSpecificationRepositoryImpl(db)
+	categoryRepo := repository.NewCategoryRepositoryImpl(db)
+	catSpecRepo := repository.NewCategorySpecificationRepositoryImpl(db)
 	//usecase
 	authUC := usecase.NewAuthUsecaseImpl(authRepo, activityLogRepo, txRepo, cfg.JWT, redisClient)
 	laboratoryUC := usecase.NewLaboratoryUsecaseImpl(laboratoryRepo, locationRepo, activityLogRepo, txRepo)
 	specificationUC := usecase.NewSpecificationUsecaseImpl(specificationRepo, activityLogRepo, txRepo)
+	categoryUC := usecase.NewCategoryUsecaseImpl(categoryRepo, catSpecRepo, activityLogRepo, txRepo)
 	//handler
 	authHandler := handler.NewAuthHandler(authUC)
 	laboratoryHandler := handler.NewLaboratoryHandler(laboratoryUC)
 	specificationHandler := handler.NewSpecificationHandler(specificationUC)
+	categoryHandler := handler.NewCategoryHandler(categoryUC)
 
 	// 3. Setup Router
 	r := router.SetupRoutes(
 		authHandler,
 		laboratoryHandler,
 		specificationHandler,
+		categoryHandler,
 		cfg.JWT.Secret,
 		redisClient,
 	)

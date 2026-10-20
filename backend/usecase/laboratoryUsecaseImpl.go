@@ -21,10 +21,6 @@ func NewLaboratoryUsecaseImpl(laboratoryRepo dr.LaboratoryRepository, locationRe
 }
 
 func (u *laboratoryUsecaseImpl) Create(ctx context.Context, adminID uint, laboratory *entity.Laboratories) error {
-	if laboratory.Location == nil || laboratory.Location.Name == "" {
-		return entity.ErrInvalidInput
-	}
-
 	return u.txRepo.WithinTransaction(ctx, func(ctx context.Context) error {
 		if err := u.locationRepo.Create(ctx, laboratory.Location); err != nil {
 			return fmt.Errorf("failed to create location: %w", err)
@@ -47,10 +43,6 @@ func (u *laboratoryUsecaseImpl) Create(ctx context.Context, adminID uint, labora
 }
 
 func (u *laboratoryUsecaseImpl) Update(ctx context.Context, adminID uint, laboratory *entity.Laboratories) error {
-	if laboratory.Location == nil || laboratory.Location.Name == "" {
-		return entity.ErrInvalidInput
-	}
-
 	return u.txRepo.WithinTransaction(ctx, func(ctx context.Context) error {
 		exist, err := u.laboratoryRepo.FetchByID(ctx, laboratory.ID)
 		if err != nil {
