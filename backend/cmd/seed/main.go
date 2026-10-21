@@ -127,6 +127,7 @@ func SeedCategories(db *gorm.DB) {
 		{ID: 33, Name: "Mikrotik", Code: "MKR"},
 		{ID: 34, Name: "Router", Code: "RTR"},
 		{ID: 35, Name: "Modul", Code: "MDL"},
+		{ID: 36, Name: "Computer", Code: "COM"},
 	}
 
 	for _, category := range categories {

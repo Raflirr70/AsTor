@@ -10,4 +10,5 @@ var (
 	ErrUnauthorized       = errors.New("unauthorized")
 	ErrForbidden          = errors.New("forbidden")
 	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrNoChanges          = errors.New("no changes detected")
 )

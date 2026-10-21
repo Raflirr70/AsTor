@@ -1,9 +1,8 @@
 package entity
 
 type Computers struct {
-	ID      uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-	AssetID uint   `json:"asset_id"`
-	Label   string `json:"label"`
+	ID      uint `json:"id" gorm:"primaryKey;autoIncrement"`
+	AssetID uint `json:"asset_id"`
 
 	// ForeignKey
 	Asset *Assets `json:"asset" gorm:"foreignKey:AssetID;references:ID"`
