@@ -13,7 +13,7 @@ type Assets struct {
 	Label      string          `json:"label"`
 	Status     string          `json:"status"`
 	CreatedAt  time.Time       `json:"created_at"`
-	CheckedAt  time.Time       `json:"checked_at" gorm:"autoCreateTime"`
+	CheckedAt  time.Time       `json:"checked_at" gorm:"default:null"`
 	UpdatedAt  time.Time       `json:"updated_at"`
 	DeletedAt  *gorm.DeletedAt `json:"-"`
 

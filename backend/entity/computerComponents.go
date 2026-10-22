@@ -7,7 +7,7 @@ type ComputerComponents struct {
 	AssetID    uint      `json:"asset_id"`
 	ComputerID uint      `json:"computer_id"`
 	StartedAt  time.Time `json:"started_at"`
-	EndedAt    time.Time `json:"ended_at"`
+	EndedAt    time.Time `json:"ended_at" gorm:"default:null"`
 
 	// ForeignKey
 	Asset    *Assets    `json:"asset" gorm:"foreignKey:AssetID;references:ID"`

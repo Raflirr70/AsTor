@@ -14,6 +14,7 @@ func SetupRoutes(
 	specificationHandler *handler.SpecificationHandler,
 	categoryHandler *handler.CategoryHandler,
 	assetHandler *handler.AssetHandler,
+	computerHandler *handler.ComputerHandler,
 	jwt string,
 	redisClient *redis.Client,
 ) *gin.Engine {
@@ -54,6 +55,9 @@ func SetupRoutes(
 		admin.DELETE("/asset/:id", assetHandler.Delete)
 		admin.DELETE("/asset/:id/checking", assetHandler.Checking)
 
+		admin.GET("/Computers", computerHandler.GetAll)
+		admin.POST("/Computers", computerHandler.Create)
+		admin.PUT("/Computer/:id", computerHandler.Update)
 	}
 
 	return r

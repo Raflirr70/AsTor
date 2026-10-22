@@ -64,6 +64,8 @@ func main() {
 	catSpecRepo := repository.NewCategorySpecificationRepositoryImpl(db)
 	assetRepo := repository.NewAssetRepositoryImpl(db)
 	assetSpecRepo := repository.NewAssetSpecificationRepositoryImpl(db)
+	computerCompRepo := repository.NewComputerComponentRepositoryImpl(db)
+	computerRepo := repository.NewComputerRepositoryImpl(db)
 
 	//usecase
 	authUC := usecase.NewAuthUsecaseImpl(authRepo, activityLogRepo, txRepo, cfg.JWT, redisClient)
@@ -71,12 +73,14 @@ func main() {
 	specificationUC := usecase.NewSpecificationUsecaseImpl(specificationRepo, activityLogRepo, txRepo)
 	categoryUC := usecase.NewCategoryUsecaseImpl(categoryRepo, catSpecRepo, activityLogRepo, txRepo)
 	assetUC := usecase.NewAssetUsecaseImpl(assetRepo, categoryRepo, catSpecRepo, assetSpecRepo, activityLogRepo, txRepo)
+	computerUC := usecase.NewComputerUsecaseImpl(assetRepo, computerRepo, computerCompRepo, txRepo)
 	//handler
 	authHandler := handler.NewAuthHandler(authUC)
 	laboratoryHandler := handler.NewLaboratoryHandler(laboratoryUC)
 	specificationHandler := handler.NewSpecificationHandler(specificationUC)
 	categoryHandler := handler.NewCategoryHandler(categoryUC)
 	assetHandler := handler.NewAssetHandler(assetUC)
+	computerHandler := handler.NewComputerHandler(computerUC)
 	// 3. Setup Router
 	r := router.SetupRoutes(
 		authHandler,
@@ -84,6 +88,7 @@ func main() {
 		specificationHandler,
 		categoryHandler,
 		assetHandler,
+		computerHandler,
 		cfg.JWT.Secret,
 		redisClient,
 	)

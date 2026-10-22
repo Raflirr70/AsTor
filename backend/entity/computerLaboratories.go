@@ -8,7 +8,7 @@ type ComputerLaboratories struct {
 	LaboratoryID uint      `json:"laboratory_id"`
 	Number       int       `json:"number"`
 	StartedAt    time.Time `json:"started_at"`
-	EndedAt      time.Time `json:"ended_at"`
+	EndedAt      time.Time `json:"ended_at" gorm:"default:null"`
 
 	// ForeignKey
 	Computer   *Computers    `json:"computer" gorm:"foreignKey:ComputerID;references:ID"`

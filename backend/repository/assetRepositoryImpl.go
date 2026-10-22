@@ -43,7 +43,6 @@ func (r *assetRepositoryImpl) FetchByID(ctx context.Context, id uint) (*entity.A
 	}
 	return &asset, nil
 }
-
 func (r *assetRepositoryImpl) FetchByCategory(ctx context.Context, categoryID uint) ([]entity.Assets, error) {
 	var assets []entity.Assets
 	if err := dbFromContext(ctx, r.db).WithContext(ctx).Where("category_id = ?", categoryID).Preload("Category").Preload("AssetSpecifications.SpecificatioCategory").Find(&assets).Error; err != nil {
