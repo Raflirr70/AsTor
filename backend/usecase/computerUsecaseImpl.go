@@ -88,14 +88,13 @@ func (u *computerUsecaseImpl) Update(ctx context.Context, computerID uint, req d
 			assetChanged = true
 		}
 
-		// 3. Cek apakah component berubah — komponen AKTIF (EndedAt.IsZero)
 		active := map[uint]bool{} // AssetID aktif existing
 		for _, c := range computer.ComputerComponents {
 			if c.EndedAt.IsZero() {
 				active[c.AssetID] = true
 			}
 		}
-		incoming := map[uint]bool{} // dari req.ComponentIDs (dedupe)
+		incoming := map[uint]bool{} // req.ComponentIDs
 		for _, id := range req.ComponentIDs {
 			incoming[id] = true
 		}
@@ -110,11 +109,10 @@ func (u *computerUsecaseImpl) Update(ctx context.Context, computerID uint, req d
 			}
 		}
 
-		// Tidak ada perubahan sama sekali → selesai
 		if !assetChanged && !compsChanged {
 			return entity.ErrNoChanges
 		}
-		// 4. Update asset jika berubah (GORM struct Updates: field kosong auto-skip)
+
 		if assetChanged {
 			asset := &entity.Assets{ID: computer.Asset.ID, Label: req.Label, Status: req.Status}
 			fmt.Printf("%d-%d\n", computer.Asset.Status, asset.Status)
@@ -128,9 +126,7 @@ func (u *computerUsecaseImpl) Update(ctx context.Context, computerID uint, req d
 			}
 		}
 
-		// 5. Diff components
 		for _, c := range computer.ComputerComponents {
-			// aktif tapi tidak di input → isi endedAt
 			if c.EndedAt.IsZero() && !incoming[c.AssetID] {
 				c.EndedAt = time.Now()
 				if err := u.computerCompRepo.Update(ctx, &c); err != nil {
@@ -141,8 +137,7 @@ func (u *computerUsecaseImpl) Update(ctx context.Context, computerID uint, req d
 		for _, id := range req.ComponentIDs {
 			if active[id] {
 				continue
-			} // yang sama → tetap, skip
-			// bertambah → cek belum terpakai, lalu buat baru
+			}
 			used, err := u.computerCompRepo.CheckUsed(ctx, id)
 			if err != nil {
 				return fmt.Errorf("failed checkUsed computer component : %w", err)
