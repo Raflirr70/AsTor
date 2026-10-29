@@ -15,22 +15,31 @@ type categoryUsecaseImpl struct {
 	txRepo          dr.TransactionRepository
 }
 
-func NewCategoryUsecaseImpl(
-	categoryRepo dr.CategoryRepository,
-	catSpecRepo dr.CategorySpecificationRepository,
-	activityLogRepo dr.ActivityLogRepository,
-	txRepo dr.TransactionRepository,
-) du.CategoryUsecase {
-	return &categoryUsecaseImpl{
-		categoryRepo:    categoryRepo,
-		catSpecRepo:     catSpecRepo,
-		activityLogRepo: activityLogRepo,
-		txRepo:          txRepo,
-	}
+func NewCategoryUsecaseImpl(categoryRepo dr.CategoryRepository, catSpecRepo dr.CategorySpecificationRepository, activityLogRepo dr.ActivityLogRepository, txRepo dr.TransactionRepository) du.CategoryUsecase {
+	return &categoryUsecaseImpl{categoryRepo: categoryRepo, catSpecRepo: catSpecRepo, activityLogRepo: activityLogRepo, txRepo: txRepo}
 }
 
 func (u *categoryUsecaseImpl) Create(ctx context.Context, adminID uint, category *entity.Categories, specificationIDs []uint) error {
 	return u.txRepo.WithinTransaction(ctx, func(ctx context.Context) error {
+		fmt.Print("Name Mulai")
+		exists, err := u.categoryRepo.ExistByName(ctx, category.Name)
+		if err != nil {
+			return err
+		}
+		fmt.Print("Nama Lewat")
+		if exists {
+			return fmt.Errorf("%w:category name", entity.ErrAlreadyExists)
+		}
+		fmt.Print("Code Mulai")
+
+		exists, err = u.categoryRepo.ExistByCode(ctx, category.Code)
+		if err != nil {
+			return err
+		}
+		fmt.Print("Code Lewat")
+		if exists {
+			return fmt.Errorf("%w:category code", entity.ErrAlreadyExists)
+		}
 		if err := u.categoryRepo.Create(ctx, category); err != nil {
 			return fmt.Errorf("failed to create category: %w", err)
 		}
@@ -67,18 +76,40 @@ func (u *categoryUsecaseImpl) Update(ctx context.Context, adminID uint, category
 			return fmt.Errorf("failed to update category: %w", err)
 		}
 
-		// Replace specs: delete old, insert new
-		if err := u.catSpecRepo.DeleteByCategoryID(ctx, category.ID); err != nil {
-			return fmt.Errorf("failed to reset category specifications: %w", err)
+		existingSpecs, err := u.catSpecRepo.FetchByCategoryID(ctx, category.ID)
+		if err != nil {
+			return fmt.Errorf("failed to fetch existing category specifications: %w", err)
 		}
 
-		for _, specID := range specificationIDs {
-			cs := &entity.CategorySpecifications{
-				CategoryID:      category.ID,
-				SpecificationID: specID,
+		existingMap := make(map[uint]bool)
+		for _, es := range existingSpecs {
+			existingMap[es.SpecificationID] = true
+		}
+
+		reqMap := make(map[uint]bool)
+		for _, id := range specificationIDs {
+			reqMap[id] = true
+		}
+
+		// 2. Hapus spesifikasi yang tidak ada di request
+		for _, es := range existingSpecs {
+			if !reqMap[es.SpecificationID] {
+				if err := u.catSpecRepo.DeleteByCategoryAndSpecificationID(ctx, category.ID, es.SpecificationID); err != nil {
+					return fmt.Errorf("failed to delete category specification: %w", err)
+				}
 			}
-			if err := u.catSpecRepo.Create(ctx, cs); err != nil {
-				return fmt.Errorf("failed to create category specification: %w", err)
+		}
+
+		// 3. Buat spesifikasi baru yang belum ada di DB
+		for _, id := range specificationIDs {
+			if !existingMap[id] {
+				cs := &entity.CategorySpecifications{
+					CategoryID:      category.ID,
+					SpecificationID: id,
+				}
+				if err := u.catSpecRepo.Create(ctx, cs); err != nil {
+					return fmt.Errorf("failed to create category specification: %w", err)
+				}
 			}
 		}
 

@@ -127,8 +127,8 @@ func (h *AssetHandler) Checking(c *gin.Context) {
 	asset.CheckedAt = time.Now()
 	adminID := c.GetUint("user_id")
 
-	if err := h.assetUsecase.Update(c.Request.Context(), adminID, asset); err != nil {
-		response.Internal(c, "Failed to update checked_at")
+	if err := h.assetUsecase.Checked(c.Request.Context(), adminID, asset); err != nil {
+		response.Internal(c, err.Error())
 		return
 	}
 
@@ -142,4 +142,22 @@ func (h *AssetHandler) GetAll(c *gin.Context) {
 		return
 	}
 	response.OK(c, dto.ToResponseAssetList(assets), "Success")
+}
+
+func (h *AssetHandler) GetByID(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		response.BadRequest(c, entity.ErrInvalidID.Error())
+		return
+	}
+	asset, err := h.assetUsecase.FetchByID(c.Request.Context(), uint(id))
+	if err != nil {
+		if errors.Is(err, entity.ErrNotFound) {
+			response.BadRequest(c, entity.ErrNotFound.Error(), err.Error())
+			return
+		}
+		response.Internal(c, "failed to fetch asset")
+		return
+	}
+	response.OK(c, dto.ToResponseAsset(asset), "Sucess")
 }

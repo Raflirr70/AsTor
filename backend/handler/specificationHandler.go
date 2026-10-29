@@ -75,6 +75,23 @@ func (h *SpecificationHandler) GetAll(c *gin.Context) {
 
 	response.OK(c, dto.ToResponseSpecificationList(specs), "Success")
 }
+func (h *SpecificationHandler) GetByID(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		response.BadRequest(c, entity.ErrInvalidID.Error())
+		return
+	}
+	spec, err := h.specUsecase.GetByID(c.Request.Context(), uint(id))
+	if err != nil {
+		if errors.Is(err, entity.ErrNotFound) {
+			response.NotFound(c, entity.ErrNotFound.Error())
+			return
+		}
+		response.Internal(c, "invalid to featch specification")
+		return
+	}
+	response.OK(c, dto.ToResponseSpecification(spec), "Success")
+}
 
 func (h *SpecificationHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)

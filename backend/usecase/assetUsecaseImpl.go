@@ -129,6 +129,31 @@ func (u *assetUsecaseImpl) Update(ctx context.Context, adminID uint, asset *enti
 		return nil
 	})
 }
+func (u *assetUsecaseImpl) Checked(ctx context.Context, adminID uint, asset *entity.Assets) error {
+	return u.txRepo.WithinTransaction(ctx, func(ctx context.Context) error {
+		exist, err := u.assetRepo.FetchByID(ctx, asset.ID)
+		if err != nil {
+			return fmt.Errorf("failed to find asset: %w", err)
+		}
+		exist.CheckedAt = asset.CheckedAt
+		if err := u.assetRepo.UpdateCheckedAt(ctx, exist); err != nil {
+			return fmt.Errorf("failed to update checkedAt asset: %w", err)
+		}
+
+		log := &entity.ActivityLogs{
+			UserID:      adminID,
+			Action:      "ASSET_Checked",
+			EntityType:  "Assets",
+			EntityID:    exist.ID,
+			Description: "Asset checked",
+		}
+		if err := u.activityLog.Create(ctx, log); err != nil {
+			return fmt.Errorf("failed to create activity log: %w", err)
+		}
+		return nil
+	})
+}
+
 func (u *assetUsecaseImpl) UpdateSpecification(ctx context.Context, adminID uint, spec *entity.AssetSpecifications) error {
 	return u.txRepo.WithinTransaction(ctx, func(ctx context.Context) error {
 		exist, err := u.assetSpecRepo.FetchByID(ctx, spec.ID)
@@ -186,10 +211,7 @@ func (u *assetUsecaseImpl) FetchByID(ctx context.Context, id uint) (*entity.Asse
 	return u.assetRepo.FetchByID(ctx, id)
 }
 
-func validateAssetSpecifications(
-	requiredIDs []uint,
-	assetSpecs []entity.AssetSpecifications,
-) error {
+func validateAssetSpecifications(requiredIDs []uint, assetSpecs []entity.AssetSpecifications) error {
 	if len(requiredIDs) == 0 {
 		if len(assetSpecs) > 0 {
 			return fmt.Errorf("%w: this category does not support specifications", entity.ErrInvalidInput)

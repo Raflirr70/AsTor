@@ -119,3 +119,6 @@ func (u *laboratoryUsecaseImpl) Restore(ctx context.Context, adminID uint, labor
 func (u *laboratoryUsecaseImpl) GetAll(ctx context.Context) ([]entity.Laboratories, error) {
 	return u.laboratoryRepo.FetchAll(ctx)
 }
+func (u *laboratoryUsecaseImpl) GetByID(ctx context.Context, id uint) (*entity.Laboratories, error) {
+	return u.laboratoryRepo.FetchByID(ctx, id)
+}

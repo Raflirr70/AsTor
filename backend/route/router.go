@@ -35,29 +35,35 @@ func SetupRoutes(
 
 		admin.POST("/labkoms", laboratoryHandler.Create)
 		admin.GET("/labkoms", laboratoryHandler.GetAll)
-		admin.PUT("/labkoms/:id", laboratoryHandler.Update)
+		admin.PUT("/labkom/:id", laboratoryHandler.Update)
+		admin.GET("/labkom/:id", laboratoryHandler.GetByID)
 		admin.DELETE("/labkom/:id", laboratoryHandler.Delete)
-		admin.PATCH("/labkoms/:id/restore", laboratoryHandler.Restore)
+		admin.PATCH("/labkom/:id/restore", laboratoryHandler.Restore)
 
-		admin.GET("/specificaions", specificationHandler.GetAll)
-		admin.POST("/specificaions", specificationHandler.Create)
-		admin.PUT("/specificaion/:id", specificationHandler.Update)
-		admin.DELETE("/specificaion/:id", specificationHandler.Delete)
+		admin.GET("/specifications", specificationHandler.GetAll)
+		admin.POST("/specifications", specificationHandler.Create)
+		admin.GET("/specification/:id", specificationHandler.GetByID)
+		admin.PUT("/specification/:id", specificationHandler.Update)
+		admin.DELETE("/specification/:id", specificationHandler.Delete)
 
 		admin.GET("/categories", categoryHandler.GetAll)
 		admin.POST("/categories", categoryHandler.Create)
-		admin.PUT("/categorie/:id", categoryHandler.Update)
-		admin.DELETE("/categorie/:id", categoryHandler.Delete)
+		admin.GET("/category/:id", categoryHandler.GetByID)
+		admin.PUT("/category/:id", categoryHandler.Update)
+		admin.DELETE("/category/:id", categoryHandler.Delete)
 
 		admin.GET("/assets", assetHandler.GetAll)
 		admin.POST("/assets", assetHandler.Create)
+		admin.GET("/asset/:id", assetHandler.GetByID)
 		admin.PUT("/asset/:id", assetHandler.Update)
 		admin.DELETE("/asset/:id", assetHandler.Delete)
-		admin.DELETE("/asset/:id/checking", assetHandler.Checking)
+		admin.PATCH("/asset/:id/checking", assetHandler.Checking)
 
-		admin.GET("/Computers", computerHandler.GetAll)
-		admin.POST("/Computers", computerHandler.Create)
-		admin.PUT("/Computer/:id", computerHandler.Update)
+		admin.GET("/computers", computerHandler.GetAll)
+		admin.POST("/computers", computerHandler.Create)
+		admin.GET("/computer/:id", computerHandler.GetByID)
+		admin.PUT("/computer/:id", computerHandler.Update)
+		admin.DELETE("/computer/:id", computerHandler.Delete)
 	}
 
 	return r

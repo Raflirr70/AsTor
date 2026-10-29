@@ -11,4 +11,5 @@ type LaboratoryUsecase interface {
 	Delete(ctx context.Context, admin uint, laboratory *entity.Laboratories) error
 	Restore(ctx context.Context, admin uint, laboratory *entity.Laboratories) error
 	GetAll(ctx context.Context) ([]entity.Laboratories, error)
+	GetByID(ctx context.Context, id uint) (*entity.Laboratories, error)
 }

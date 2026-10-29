@@ -113,3 +113,20 @@ func (h *LaboratoryHandler) GetAll(c *gin.Context) {
 	}
 	response.OK(c, dto.ToResponseLaboratoriesForAdminList(labs), "success")
 }
+func (h *LaboratoryHandler) GetByID(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		response.BadRequest(c, entity.ErrInvalidID.Error())
+		return
+	}
+	lab, err := h.laboratoryUsecase.GetByID(c.Request.Context(), uint(id))
+	if err != nil {
+		if errors.Is(err, entity.ErrInvalidID) {
+			response.BadRequest(c, entity.ErrInvalidID.Error())
+			return
+		}
+		response.Internal(c, "failed to fetch laboratory")
+		return
+	}
+	response.OK(c, dto.ToResponseLaboratoryForAdmin(lab), "Success")
+}

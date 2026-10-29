@@ -30,22 +30,31 @@ func (r *computerRepositoryImpl) Delete(ctx context.Context, computer *entity.Co
 
 func (r *computerRepositoryImpl) FetchAll(ctx context.Context) ([]entity.Computers, error) {
 	var computers []entity.Computers
-	if err := dbFromContext(ctx, r.db).WithContext(ctx).
+
+	err := dbFromContext(ctx, r.db).
+		WithContext(ctx).
+		Joins("JOIN assets ON assets.id = computers.asset_id").
+		Where("assets.deleted_at IS NULL").
 		Preload("Asset.Category").
 		Preload("Asset.AssetSpecifications.SpecificatioCategory").
 		Preload("ComputerLaboratories.Laboratory").
 		Preload("ComputerComponents", "ended_at IS NULL").
 		Preload("ComputerComponents.Asset.Category").
 		Preload("ComputerComponents.Asset.AssetSpecifications.SpecificatioCategory").
-		Find(&computers).Error; err != nil {
+		Find(&computers).Error
+
+	if err != nil {
 		return nil, err
 	}
+
 	return computers, nil
 }
 
 func (r *computerRepositoryImpl) FetchByID(ctx context.Context, id uint) (*entity.Computers, error) {
 	var computer entity.Computers
 	if err := dbFromContext(ctx, r.db).WithContext(ctx).
+		Joins("JOIN assets ON assets.id = computers.asset_id").
+		Where("assets.deleted_at IS NULL").
 		Preload("Asset.Category").
 		Preload("Asset.AssetSpecifications.SpecificatioCategory").
 		Preload("ComputerLaboratories.Laboratory").

@@ -31,7 +31,7 @@ func (h *CategoryHandler) Create(c *gin.Context) {
 	adminID := c.GetUint("user_id")
 	if err := h.categoryUsecase.Create(c.Request.Context(), adminID, req.ToEntity(), req.SpecificationIDs); err != nil {
 		if errors.Is(err, entity.ErrAlreadyExists) {
-			response.BadRequest(c, "Category already exists")
+			response.BadRequest(c, "Category name or code already exists")
 			return
 		}
 		response.Internal(c, "Failed to create category")
@@ -99,4 +99,21 @@ func (h *CategoryHandler) GetAll(c *gin.Context) {
 	}
 
 	response.OK(c, dto.ToResponseCategoryList(categories), "Success")
+}
+func (h *CategoryHandler) GetByID(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		response.BadRequest(c, entity.ErrInvalidID.Error())
+		return
+	}
+	category, err := h.categoryUsecase.GetByID(c.Request.Context(), uint(id))
+	if err != nil {
+		if errors.Is(err, entity.ErrNotFound) {
+			response.NotFound(c, entity.ErrNotFound.Error())
+			return
+		}
+		response.Internal(c, "failed to fetch category")
+		return
+	}
+	response.OK(c, dto.ToResponseCategory(category), "Success")
 }

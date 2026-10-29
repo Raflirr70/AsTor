@@ -24,10 +24,22 @@ func (r *categorySpecificationRepositoryImpl) DeleteByCategoryID(ctx context.Con
 	return dbFromContext(ctx, r.db).WithContext(ctx).Where("category_id = ?", categoryID).Delete(&entity.CategorySpecifications{}).Error
 }
 
+func (r *categorySpecificationRepositoryImpl) DeleteByCategoryAndSpecificationID(ctx context.Context, categoryID uint, specificationID uint) error {
+	return dbFromContext(ctx, r.db).WithContext(ctx).Where("category_id = ? AND specification_id = ?", categoryID, specificationID).Delete(&entity.CategorySpecifications{}).Error
+}
+
 func (r *categorySpecificationRepositoryImpl) FetchByCategoryID(ctx context.Context, categoryID uint) ([]entity.CategorySpecifications, error) {
 	var css []entity.CategorySpecifications
 	if err := dbFromContext(ctx, r.db).WithContext(ctx).Where("category_id = ?", categoryID).Find(&css).Error; err != nil {
 		return nil, err
 	}
 	return css, nil
+}
+func (r *categorySpecificationRepositoryImpl) ExistsByCategoryAndSpecificationID(ctx context.Context, categoryID uint, specificationID uint) (bool, error) {
+	var count int64
+	if err := dbFromContext(ctx, r.db).WithContext(ctx).Model(&entity.CategorySpecifications{}).Where("category_id = ? AND specification_id = ?", categoryID, specificationID).Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }

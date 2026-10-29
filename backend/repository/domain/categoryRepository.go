@@ -11,4 +11,6 @@ type CategoryRepository interface {
 	Delete(ctx context.Context, category *entity.Categories) error
 	FetchAll(ctx context.Context) ([]entity.Categories, error)
 	FetchByID(ctx context.Context, id uint) (*entity.Categories, error)
+	ExistByName(ctx context.Context, query string) (bool, error)
+	ExistByCode(ctx context.Context, query string) (bool, error)
 }

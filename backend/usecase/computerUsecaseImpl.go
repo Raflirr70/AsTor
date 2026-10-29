@@ -115,8 +115,8 @@ func (u *computerUsecaseImpl) Update(ctx context.Context, computerID uint, req d
 
 		if assetChanged {
 			asset := &entity.Assets{ID: computer.Asset.ID, Label: req.Label, Status: req.Status}
-			fmt.Printf("%d-%d\n", computer.Asset.Status, asset.Status)
-			fmt.Printf("%d-%d\n", computer.Asset.CheckedAt, asset.CheckedAt)
+			// fmt.Printf("%d-%d\n", computer.Asset.Status, asset.Status)
+			// fmt.Printf("%d-%d\n", computer.Asset.CheckedAt, asset.CheckedAt)
 			if req.Status != computer.Asset.Status {
 				fmt.Printf("Masuk ke sini\n")
 				asset.CheckedAt = time.Now()
@@ -157,4 +157,17 @@ func (u *computerUsecaseImpl) Update(ctx context.Context, computerID uint, req d
 }
 func (u *computerUsecaseImpl) GetAll(ctx context.Context) ([]entity.Computers, error) {
 	return u.computerRepo.FetchAll(ctx)
+}
+func (u *computerUsecaseImpl) Delete(ctx context.Context, adminID uint, computer *entity.Computers) error {
+	exist, err := u.computerRepo.FetchByID(ctx, computer.ID)
+	if err != nil {
+		return fmt.Errorf("failed to find laboratory: %w", err)
+	}
+	if err := u.assetRepo.Delete(ctx, exist.Asset); err != nil {
+		return fmt.Errorf("failed to delete assets: %w", err)
+	}
+	return nil
+}
+func (u *computerUsecaseImpl) GetByID(ctx context.Context, id uint) (*entity.Computers, error) {
+	return u.computerRepo.FetchByID(ctx, id)
 }

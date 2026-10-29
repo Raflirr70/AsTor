@@ -43,3 +43,17 @@ func (r *categoryRepositoryImpl) FetchByID(ctx context.Context, id uint) (*entit
 	}
 	return &category, nil
 }
+func (r *categoryRepositoryImpl) ExistByName(ctx context.Context, query string) (bool, error) {
+	var count int64
+	if err := dbFromContext(ctx, r.db).WithContext(ctx).Model(&entity.Categories{}).Where("name = ?", query).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+func (r *categoryRepositoryImpl) ExistByCode(ctx context.Context, query string) (bool, error) {
+	var count int64
+	if err := dbFromContext(ctx, r.db).WithContext(ctx).Model(&entity.Categories{}).Where("code = ?", query).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}

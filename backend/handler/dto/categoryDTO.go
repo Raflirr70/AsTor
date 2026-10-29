@@ -5,13 +5,13 @@ import "astor/backend/entity"
 type CreateCategory struct {
 	Name             string `json:"name" binding:"required"`
 	Code             string `json:"code" binding:"required"`
-	SpecificationIDs []uint `json:"specification_ids" binding:"required,min=1"`
+	SpecificationIDs []uint `json:"specification_ids"`
 }
 
 type UpdateCategory struct {
 	Name             string `json:"name" binding:"required"`
 	Code             string `json:"code" binding:"required"`
-	SpecificationIDs []uint `json:"specification_ids" binding:"required,min=1"`
+	SpecificationIDs []uint `json:"specification_ids" binding:"required"`
 }
 
 type ResponseSpecificationForCategory struct {

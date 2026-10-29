@@ -30,7 +30,7 @@ func (r *laboratoryRepositoryImpl) Delete(ctx context.Context, laboratory *entit
 
 func (r *laboratoryRepositoryImpl) FetchAll(ctx context.Context) ([]entity.Laboratories, error) {
 	var laboratories []entity.Laboratories
-	if err := dbFromContext(ctx, r.db).WithContext(ctx).Preload("Location").Order("name ASC").Find(&laboratories).Error; err != nil {
+	if err := dbFromContext(ctx, r.db).WithContext(ctx).Joins("Location").Order(`"Location"."name" ASC`).Find(&laboratories).Error; err != nil {
 		return nil, err
 	}
 	return laboratories, nil

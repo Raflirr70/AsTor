@@ -81,3 +81,34 @@ func (h *ComputerHandler) GetAll(c *gin.Context) {
 
 	response.OK(c, res, "computers retrieved successfully")
 }
+func (h *ComputerHandler) Delete(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		response.BadRequest(c, entity.ErrInvalidID.Error())
+		return
+	}
+	adminID := c.GetUint("user_id")
+	computer := &entity.Computers{ID: uint(id)}
+	if err := h.computerUsecase.Delete(c.Request.Context(), adminID, computer); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			response.NotFound(c, entity.ErrNotFound.Error())
+			return
+		}
+		response.Internal(c, "Failed to delete computer")
+		return
+	}
+	response.OK(c, nil, "Computer deleted successfully")
+}
+func (h *ComputerHandler) GetByID(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		response.BadRequest(c, entity.ErrInvalidID.Error())
+		return
+	}
+	computer, err := h.computerUsecase.GetByID(c.Request.Context(), uint(id))
+	if err != nil {
+		response.Internal(c, "invalid to find computer")
+		return
+	}
+	response.OK(c, dto.ToResponseComputer(computer), "Success")
+}
