@@ -15,6 +15,7 @@ func SetupRoutes(
 	categoryHandler *handler.CategoryHandler,
 	assetHandler *handler.AssetHandler,
 	computerHandler *handler.ComputerHandler,
+	loanHandler *handler.LoanHandler,
 	jwt string,
 	redisClient *redis.Client,
 ) *gin.Engine {
@@ -64,6 +65,20 @@ func SetupRoutes(
 		admin.GET("/computer/:id", computerHandler.GetByID)
 		admin.PUT("/computer/:id", computerHandler.Update)
 		admin.DELETE("/computer/:id", computerHandler.Delete)
+	}
+	gudang := r.Group("/gudang")
+	gudang.Use(middleware.AuthMiddleware(jwt, redisClient))
+	gudang.Use(middleware.RoleMiddleware("PJ Gudang"))
+	{
+		gudang.PATCH("/loan/:id/approved", loanHandler.Approved)
+	}
+
+	protected := r.Group("/asisten")
+	protected.Use(middleware.AuthMiddleware(jwt, redisClient))
+	{
+		protected.GET("/loans", loanHandler.GetAll)
+		protected.POST("/loans", loanHandler.Create)
+		protected.PATCH("/loan/:id/returned", loanHandler.Returned)
 	}
 
 	return r

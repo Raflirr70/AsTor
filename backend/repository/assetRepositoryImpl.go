@@ -59,6 +59,14 @@ func (r *assetRepositoryImpl) FindLastCode(ctx context.Context, prefix string) (
 	}
 	return asset.Code, nil
 }
+func (r *assetRepositoryImpl) FetchByCode(ctx context.Context, code string) (*entity.Assets, error) {
+	var asset entity.Assets
+	err := dbFromContext(ctx, r.db).WithContext(ctx).Where("code = ?", code).First(&asset).Error
+	if err != nil {
+		return nil, err
+	}
+	return &asset, nil
+}
 
 func (r *assetRepositoryImpl) UpdateCheckedAt(ctx context.Context, asset *entity.Assets) error {
 	return dbFromContext(ctx, r.db).WithContext(ctx).Model(&entity.Assets{}).Where("id = ?", asset.ID).UpdateColumn("checked_at", asset.CheckedAt).Error

@@ -30,5 +30,6 @@ type Users struct {
 	Reporteds               []Reports         `json:"reporteds" gorm:"foreignKey:ReportedByID;references:ID"`
 	ApprovedReporteds       []Reports         `json:"approved_reporteds" gorm:"foreignKey:ApprovedByID;references:ID"`
 	Notifications           []Notifications   `json:"notifications" gorm:"foreignKey:UserID;references:ID"`
-	Loans                   []Loans           `json:"loans" gorm:"foreignKey:UserID;references:ID"`
+	Loans                   []Loans           `json:"loans" gorm:"foreignKey:UserLoanID;references:ID"`
+	ReturnedLoans           []Loans           `json:"returned_loans" gorm:"foreignKey:UserReturnID;references:ID"`
 }
