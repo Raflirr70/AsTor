@@ -19,7 +19,7 @@ type CreateLoan struct {
 type ResponseLoan struct {
 	ID         uint       `json:"id"`
 	UserLoanID uint       `json:"user_id"`
-	UserReturn uint       `json:"user_return"`
+	UserReturn *uint      `json:"user_return"`
 	Status     string     `json:"status"`
 	LoansName  string     `json:"loans_name"`
 	LoansNpm   string     `json:"loans_npm"`

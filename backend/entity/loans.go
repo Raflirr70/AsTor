@@ -5,7 +5,7 @@ import "time"
 type Loans struct {
 	ID           uint       `json:"id" gorm:"primaryKey;autoIncrement"`
 	UserLoanID   uint       `json:"user_loan_id"`
-	UserReturnID uint       `json:"user_return_id"`
+	UserReturnID *uint      `json:"user_return_id" gorm:"default:null"`
 	Status       string     `json:"status"`
 	LoansName    string     `json:"loans_name"`
 	LoansNpm     string     `json:"loans_npm"`

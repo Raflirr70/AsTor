@@ -82,35 +82,39 @@ func (u *loanUsecaseImpl) Approved(ctx context.Context, adminID uint, loan *enti
 	})
 }
 func (u *loanUsecaseImpl) Returned(ctx context.Context, userID uint, loan *entity.Loans, status string) error {
+	fmt.Printf("status : %s", status)
 	return u.txRepo.WithinTransaction(ctx, func(ctx context.Context) error {
 		loan, err := u.loanRepo.FetchByID(ctx, loan.ID)
 		if err != nil {
 			return fmt.Errorf("failed to fetch loan: %w", err)
 		}
-		loan.Status = "Done"
-		loan.UserReturnID = userID
-		returned := time.Now()
-		loan.ReturnedAt = &returned
-		if err := u.loanRepo.Update(ctx, loan); err != nil {
-			return fmt.Errorf("failed to update loan: %w", err)
-		}
-		asset, err := u.assetRepo.FetchByID(ctx, loan.LoanDetails.AssetID)
-		if err != nil || asset == nil {
-			return fmt.Errorf("failed to fetch loan: %w", err)
-		}
-		asset.Status = status
-		if err := u.assetRepo.Update(ctx, asset); err != nil {
-			return fmt.Errorf("failed to update status assets: %w", err)
-		}
+		if loan.Status != "Done" {
+			loan.Status = "Done"
+			loan.UserReturnID = &userID
+			returned := time.Now()
+			loan.ReturnedAt = &returned
+			if err := u.loanRepo.Update(ctx, loan); err != nil {
+				return fmt.Errorf("failed to update loan: %w", err)
+			}
+			asset, err := u.assetRepo.FetchByID(ctx, loan.LoanDetails.AssetID)
+			if err != nil || asset == nil {
+				return fmt.Errorf("failed to fetch loan: %w", err)
+			}
+			asset.Status = status
+			if err := u.assetRepo.Update(ctx, asset); err != nil {
+				return fmt.Errorf("failed to update status assets: %w", err)
+			}
 
-		log := &entity.ActivityLogs{
-			UserID:      userID,
-			Action:      "LOAN_RETURNED",
-			EntityType:  "Loan",
-			EntityID:    loan.ID,
-			Description: "Loan returned",
+			log := &entity.ActivityLogs{
+				UserID:      userID,
+				Action:      "LOAN_RETURNED",
+				EntityType:  "Loan",
+				EntityID:    loan.ID,
+				Description: "Loan returned",
+			}
+			return u.activityLogRepo.Create(ctx, log)
 		}
-		return u.activityLogRepo.Create(ctx, log)
+		return entity.ErrInvalidID
 	})
 }
 func (u *loanUsecaseImpl) GetByStatus(ctx context.Context, status string) ([]entity.Loans, error) {

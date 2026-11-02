@@ -103,14 +103,21 @@ func (h *LoanHandler) Returned(c *gin.Context) {
 		response.BadRequest(c, entity.ErrInvalidID.Error())
 		return
 	}
-	status := c.Query("status")
+	var req struct {
+		Status string `json:"status"`
+	}
 
-	if status != "" {
-		status = "Baik"
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "invalid request body")
+		return
+	}
+
+	if req.Status == "" {
+		req.Status = "Baik"
 	}
 	userID := c.GetUint("user_id")
 	loan := &entity.Loans{ID: uint(id)}
-	if err := h.loanUsecase.Returned(c.Request.Context(), userID, loan, status); err != nil {
+	if err := h.loanUsecase.Returned(c.Request.Context(), userID, loan, req.Status); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "loan not found")
 			return
