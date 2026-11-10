@@ -67,6 +67,7 @@ func main() {
 	computerCompRepo := repository.NewComputerComponentRepositoryImpl(db)
 	computerRepo := repository.NewComputerRepositoryImpl(db)
 	loanRepo := repository.NewLoanRepositoryImpl(db)
+	reportRepo := repository.NewReportRepositoryImpl(db)
 
 	//usecase
 	authUC := usecase.NewAuthUsecaseImpl(authRepo, activityLogRepo, txRepo, cfg.JWT, redisClient)
@@ -76,6 +77,8 @@ func main() {
 	assetUC := usecase.NewAssetUsecaseImpl(assetRepo, categoryRepo, catSpecRepo, assetSpecRepo, activityLogRepo, txRepo)
 	computerUC := usecase.NewComputerUsecaseImpl(assetRepo, computerRepo, computerCompRepo, txRepo)
 	loanUC := usecase.NewLoanUsecaseImpl(loanRepo, assetRepo, txRepo, activityLogRepo)
+	reportUC := usecase.NewAssetReportUsecaseImpl(reportRepo, assetRepo, txRepo, activityLogRepo)
+
 	//handler
 	authHandler := handler.NewAuthHandler(authUC)
 	laboratoryHandler := handler.NewLaboratoryHandler(laboratoryUC)
@@ -84,6 +87,8 @@ func main() {
 	assetHandler := handler.NewAssetHandler(assetUC)
 	computerHandler := handler.NewComputerHandler(computerUC)
 	loanHandler := handler.NewLoanHandler(loanUC)
+	reportHandler := handler.NewAssetReportHandler(reportUC)
+
 	// 3. Setup Router
 	r := router.SetupRoutes(
 		authHandler,
@@ -93,6 +98,7 @@ func main() {
 		assetHandler,
 		computerHandler,
 		loanHandler,
+		reportHandler,
 		cfg.JWT.Secret,
 		redisClient,
 	)
