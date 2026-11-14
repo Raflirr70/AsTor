@@ -25,6 +25,7 @@ type ResponseSpecificationComponent struct {
 type ResponseComponent struct {
 	ID             uint                             `json:"id"`
 	AssetID        uint                             `json:"asset_id"`
+	AssetCode      string                           `json:"asset_code"`
 	Specifications []ResponseSpecificationComponent `json:"specifications"`
 }
 type ResponseComputer struct {
@@ -59,6 +60,7 @@ func ToResponseComputer(comp *entity.Computers) ResponseComputer {
 		components = append(components, ResponseComponent{
 			ID:             cc.ID,
 			AssetID:        cc.AssetID,
+			AssetCode:      cc.Asset.Code,
 			Specifications: specifications,
 		})
 	}

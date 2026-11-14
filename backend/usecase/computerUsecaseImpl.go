@@ -159,14 +159,25 @@ func (u *computerUsecaseImpl) GetAll(ctx context.Context) ([]entity.Computers, e
 	return u.computerRepo.FetchAll(ctx)
 }
 func (u *computerUsecaseImpl) Delete(ctx context.Context, adminID uint, computer *entity.Computers) error {
-	exist, err := u.computerRepo.FetchByID(ctx, computer.ID)
-	if err != nil {
-		return fmt.Errorf("failed to find laboratory: %w", err)
-	}
-	if err := u.assetRepo.Delete(ctx, exist.Asset); err != nil {
-		return fmt.Errorf("failed to delete assets: %w", err)
-	}
-	return nil
+	return u.trxRepo.WithinTransaction(ctx, func(ctx context.Context) error {
+		exist, err := u.computerRepo.FetchByID(ctx, computer.ID)
+		if err != nil {
+			return fmt.Errorf("failed to find laboratory: %w", err)
+		}
+		if err := u.assetRepo.Delete(ctx, exist.Asset); err != nil {
+			return fmt.Errorf("failed to delete assets: %w", err)
+		}
+		for _, c := range exist.ComputerComponents {
+			if err := u.assetRepo.Delete(ctx, c.Asset); err != nil {
+				return fmt.Errorf("failed to delete assets: %w", err)
+			}
+			c.EndedAt = time.Now()
+			if err := u.computerCompRepo.Update(ctx, &c); err != nil {
+				return fmt.Errorf("failed update computer component : %w", err)
+			}
+		}
+		return nil
+	})
 }
 func (u *computerUsecaseImpl) GetByID(ctx context.Context, id uint) (*entity.Computers, error) {
 	return u.computerRepo.FetchByID(ctx, id)

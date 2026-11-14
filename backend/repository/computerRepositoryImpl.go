@@ -121,7 +121,7 @@ func (r *computerComponentRepositoryImpl) FetchByComputerID(ctx context.Context,
 func (r *computerComponentRepositoryImpl) CheckUsed(ctx context.Context, assetID uint) (bool, error) {
 	var count int64
 
-	err := dbFromContext(ctx, r.db).WithContext(ctx).Model(&entity.ComputerComponents{}).Where("asset_id = ?", assetID).Count(&count).Error
+	err := dbFromContext(ctx, r.db).WithContext(ctx).Model(&entity.ComputerComponents{}).Where("asset_id = ? AND ended_at IS NULL", assetID).Count(&count).Error
 	if err != nil {
 		return false, err
 	}

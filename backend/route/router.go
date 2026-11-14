@@ -22,6 +22,8 @@ func SetupRoutes(
 ) *gin.Engine {
 	r := gin.Default()
 
+	r.Use(middleware.CORS())
+
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"massage": "API is Running"})
 	})
@@ -36,9 +38,7 @@ func SetupRoutes(
 		admin.POST("/users", authHandler.Register)
 
 		admin.POST("/labkoms", laboratoryHandler.Create)
-		admin.GET("/labkoms", laboratoryHandler.GetAll)
 		admin.PUT("/labkom/:id", laboratoryHandler.Update)
-		admin.GET("/labkom/:id", laboratoryHandler.GetByID)
 		admin.DELETE("/labkom/:id", laboratoryHandler.Delete)
 		admin.PATCH("/labkom/:id/restore", laboratoryHandler.Restore)
 	}
@@ -72,6 +72,9 @@ func SetupRoutes(
 		gudang.DELETE("/computer/:id", computerHandler.Delete)
 
 		gudang.PATCH("/loan/:id/approved", loanHandler.Approved)
+
+		gudang.GET("/labkoms", laboratoryHandler.GetAll)
+		gudang.GET("/labkom/:id", laboratoryHandler.GetByID)
 
 	}
 
