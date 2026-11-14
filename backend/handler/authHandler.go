@@ -21,20 +21,17 @@ func NewAuthHandler(authUsecase du.AuthUsecase) *AuthHandler {
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
-	// tampung data request
 	var req dto.RequestRegister
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, "validasi Gagal", validation.ParseErrors(err)...)
 		return
 	}
-	// ubah menjadi entity
 	user := req.ToEntity()
 
 	adminID := c.GetUint("user_id")
-	// jalankan logika register
 	if err := h.authUsecase.Register(c.Request.Context(), adminID, user); err != nil {
 		if errors.Is(err, entity.ErrAlreadyExists) {
-			response.BadRequest(c, "NPM already exists")
+			response.BadRequest(c, "NPM or Username already exists")
 			return
 		}
 		response.Internal(c, "An error occurred during registration")
@@ -42,6 +39,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 	response.Created(c, nil, "Created Success")
 }
+
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req dto.RequestLogin
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -56,9 +54,19 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	response.OK(c, dto.ToResponseLogin(user, token), "Login Success")
 }
+
+func (h *AuthHandler) GetAll(c *gin.Context) {
+	users, err := h.authUsecase.GetAll(c.Request.Context())
+	if err != nil {
+		response.Internal(c, "Failed to fetch users")
+		return
+	}
+	response.OK(c, dto.ToResponseUserList(users), "Success")
+}
+
 func (h *AuthHandler) Logout(c *gin.Context) {
 	tokenValue, exists := c.Get("token")
-	fmt.Printf("token : %s\nExist : %s", tokenValue, exists)
+	fmt.Printf("token : %s\nExist : %t\n", tokenValue, exists)
 	if !exists {
 		response.Unauthorized(c, entity.ErrUnauthorized.Error())
 		return

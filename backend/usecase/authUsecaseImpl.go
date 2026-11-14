@@ -149,3 +149,7 @@ func (u *authUsecaseImpl) Logout(ctx context.Context, token string) error {
 func (u *authUsecaseImpl) GetProfile(ctx context.Context, id uint) (*entity.Users, error) {
 	return u.authRepo.FindByID(ctx, id)
 }
+
+func (u *authUsecaseImpl) GetAll(ctx context.Context) ([]entity.Users, error) {
+	return u.authRepo.FindAll(ctx)
+}

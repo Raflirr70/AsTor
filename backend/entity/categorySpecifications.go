@@ -6,5 +6,5 @@ type CategorySpecifications struct {
 	SpecificationID uint `json:"specification_id"`
 
 	Category      *Categories     `json:"category" gorm:"foreignKey:CategoryID;references:ID"`
-	Specification *Specifications `json:"category" gorm:"foreignKey:SpecificationID;references:ID"`
+	Specification *Specifications `json:"specification" gorm:"foreignKey:SpecificationID;references:ID"`
 }

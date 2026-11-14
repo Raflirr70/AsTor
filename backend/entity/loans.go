@@ -15,7 +15,7 @@ type Loans struct {
 	ReturnedAt   *time.Time `json:"returned_at"`
 
 	// ForeignKey
-	UserLoan    *Users       `json:"user_loan" gorm:"foreignKey:UserLoanID;references:ID"`
-	UserReturn  *Users       `json:"user_return" gorm:"foreignKey:UserReturnID;references:ID"`
-	LoanDetails *LoanDetails `json:"loan_details" gorm:"foreignKey:LoanID;references:ID"`
+	UserLoan    *Users        `json:"user_loan" gorm:"foreignKey:UserLoanID;references:ID"`
+	UserReturn  *Users        `json:"user_return" gorm:"foreignKey:UserReturnID;references:ID"`
+	LoanDetails []LoanDetails `json:"loan_details" gorm:"foreignKey:LoanID;references:ID"`
 }

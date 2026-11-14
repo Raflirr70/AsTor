@@ -9,6 +9,7 @@ export const menuItems = [
   { key: 'users', label: 'Users', icon: 'users' },
   { key: 'category', label: 'Category', icon: 'category' },
   { key: 'computer', label: 'Computer', icon: 'computer' },
+  { key: 'loan', label: 'Loan', icon: 'loans' },
   { key: 'report', label: 'Report', icon: 'report' },
   { key: 'specification', label: 'Specification', icon: 'specification' },
 ]

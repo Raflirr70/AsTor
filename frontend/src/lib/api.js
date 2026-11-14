@@ -48,6 +48,9 @@ async function apiFetch(path, { method = 'GET', body, token } = {}) {
   return payload?.data ?? payload
 }
 
+export function getUsers() {
+  return apiFetch('/admin/users', { token: getToken() })
+}
 export function login({ username, password }) {
   return apiFetch('/login', {
     method: 'POST',
@@ -90,6 +93,21 @@ export function deleteCategory(id) {
 
 export function getSpecifications() {
   return apiFetch('/gudang/specifications', { token: getToken() })
+}
+
+export function createSpecification(payload) {
+  return apiFetch('/gudang/specifications', {
+    method: 'POST',
+    body: payload,
+    token: getToken(),
+  })
+}
+
+export function deleteSpecification(id) {
+  return apiFetch(`/gudang/specification/${id}`, {
+    method: 'DELETE',
+    token: getToken(),
+  })
 }
 
 export function createAsset(payload) {
@@ -146,4 +164,38 @@ export function deleteComputer(id) {
   })
 }
 
-export default apiFetch
+// ===== Loans =====
+export function getLoans() {
+  return apiFetch('/asisten/loans', { token: getToken() })
+}
+
+export function createLoan(payload) {
+  return apiFetch('/asisten/loans', {
+    method: 'POST',
+    body: payload,
+    token: getToken(),
+  })
+}
+
+export function updateLoan(id, payload) {
+  return apiFetch(`/asisten/loan/${id}`, {
+    method: 'PUT',
+    body: payload,
+    token: getToken(),
+  })
+}
+
+export function deleteLoan(id) {
+  return apiFetch(`/asisten/loan/${id}`, {
+    method: 'DELETE',
+    token: getToken(),
+  })
+}
+
+export function returnLoan(id, payload) {
+  return apiFetch(`/asisten/loan/${id}/returned`, {
+    method: 'PATCH',
+    body: payload,
+    token: getToken(),
+  })
+}

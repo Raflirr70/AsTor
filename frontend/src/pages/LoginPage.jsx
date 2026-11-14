@@ -69,12 +69,7 @@ function LoginPage() {
               >
                 Username
               </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
+              <input id="username" name="username" type="text" autoComplete="username" required
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 placeholder="Masukkan username"

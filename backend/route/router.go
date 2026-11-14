@@ -33,14 +33,45 @@ func SetupRoutes(
 
 	admin := r.Group("/admin")
 	admin.Use(middleware.AuthMiddleware(jwt, redisClient))
-	admin.Use(middleware.RoleMiddleware("Admin"))
+	admin.Use(middleware.RoleMiddleware("Admin", "PJ Gudang"))
 	{
+		admin.GET("/users", authHandler.GetAll)
 		admin.POST("/users", authHandler.Register)
 
 		admin.POST("/labkoms", laboratoryHandler.Create)
 		admin.PUT("/labkom/:id", laboratoryHandler.Update)
 		admin.DELETE("/labkom/:id", laboratoryHandler.Delete)
 		admin.PATCH("/labkom/:id/restore", laboratoryHandler.Restore)
+
+		admin.GET("/specifications", specificationHandler.GetAll)
+		admin.POST("/specifications", specificationHandler.Create)
+		admin.GET("/specification/:id", specificationHandler.GetByID)
+		admin.PUT("/specification/:id", specificationHandler.Update)
+		admin.DELETE("/specification/:id", specificationHandler.Delete)
+
+		admin.GET("/categories", categoryHandler.GetAll)
+		admin.POST("/categories", categoryHandler.Create)
+		admin.GET("/category/:id", categoryHandler.GetByID)
+		admin.PUT("/category/:id", categoryHandler.Update)
+		admin.DELETE("/category/:id", categoryHandler.Delete)
+
+		admin.GET("/assets", assetHandler.GetAll)
+		admin.POST("/assets", assetHandler.Create)
+		admin.GET("/asset/:id", assetHandler.GetByID)
+		admin.PUT("/asset/:id", assetHandler.Update)
+		admin.DELETE("/asset/:id", assetHandler.Delete)
+		admin.PATCH("/asset/:id/checking", assetHandler.Checking)
+
+		admin.GET("/computers", computerHandler.GetAll)
+		admin.POST("/computers", computerHandler.Create)
+		admin.GET("/computer/:id", computerHandler.GetByID)
+		admin.PUT("/computer/:id", computerHandler.Update)
+		admin.DELETE("/computer/:id", computerHandler.Delete)
+
+		admin.PATCH("/loan/:id/approved", loanHandler.Approved)
+
+		admin.GET("/labkoms", laboratoryHandler.GetAll)
+		admin.GET("/labkom/:id", laboratoryHandler.GetByID)
 	}
 	gudang := r.Group("/gudang")
 	gudang.Use(middleware.AuthMiddleware(jwt, redisClient))

@@ -66,6 +66,11 @@ func RoleMiddleware(roles ...string) gin.HandlerFunc {
 			return
 		}
 
+		if role == "Admin" {
+			c.Next()
+			return
+		}
+
 		for _, r := range roles {
 			if r == role {
 				c.Next()

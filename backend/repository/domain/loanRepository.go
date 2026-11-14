@@ -12,4 +12,6 @@ type LoanRepository interface {
 	FetchAll(ctx context.Context) ([]entity.Loans, error)
 	FetchByID(ctx context.Context, id uint) (*entity.Loans, error)
 	Update(ctx context.Context, loan *entity.Loans) error
+	Delete(ctx context.Context, loan *entity.Loans) error
+	DeleteDetailsByLoanID(ctx context.Context, loanID uint) error
 }

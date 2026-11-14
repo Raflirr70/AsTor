@@ -38,6 +38,17 @@ type ResponseLogin struct {
 	User  ResponseUserLogin `json:"user"`
 }
 
+type ResponseUserDetail struct {
+	ID        uint         `json:"id"`
+	Npm       string       `json:"npm"`
+	Firstname string       `json:"firstname"`
+	Lastname  string       `json:"lastname"`
+	Birthday  string       `json:"birthday"`
+	Address   string       `json:"address"`
+	Username  string       `json:"username"`
+	Role      ResponseRole `json:"role"`
+}
+
 func ToResponseLogin(user *entity.Users, token string) ResponseLogin {
 	return ResponseLogin{
 		Token: token,
@@ -52,6 +63,30 @@ func ToResponseLogin(user *entity.Users, token string) ResponseLogin {
 			},
 		},
 	}
+}
+
+func ToResponseUserList(users []entity.Users) []ResponseUserDetail {
+	res := make([]ResponseUserDetail, len(users))
+	for i, u := range users {
+		bday := ""
+		if !u.Birthday.IsZero() {
+			bday = u.Birthday.Format("2006-01-02")
+		}
+		res[i] = ResponseUserDetail{
+			ID:        u.ID,
+			Npm:       u.Npm,
+			Firstname: u.Firstname,
+			Lastname:  u.Lastname,
+			Birthday:  bday,
+			Address:   u.Address,
+			Username:  u.Username,
+			Role: ResponseRole{
+				ID:   u.Role.ID,
+				Name: u.Role.Name,
+			},
+		}
+	}
+	return res
 }
 
 func (r *RequestRegister) ToEntity() *entity.Users {

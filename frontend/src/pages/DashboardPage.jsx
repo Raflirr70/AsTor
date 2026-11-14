@@ -4,6 +4,9 @@ import AssetsSection from '../components/AssetsSection'
 import CategorySection from '../components/CategorySection'
 import ComputerSection from '../components/ComputerSection'
 import DashboardOverview from '../components/DashboardOverview'
+import LoanSection from '../components/LoanSection'
+import SpecificationSection from '../components/SpecificationSection'
+import UsersSection from '../components/UsersSection'
 import DataTable from '../components/DataTable'
 import Icon from '../components/Icons'
 import LaboratorySection from '../components/LaboratorySection'
@@ -58,6 +61,15 @@ function DashboardPage() {
     }
     if (activeMenu === 'computer') {
       return <ComputerSection />
+    }
+    if (activeMenu === 'loan') {
+      return <LoanSection />
+    }
+    if (activeMenu === 'specification') {
+      return <SpecificationSection />
+    }
+    if (activeMenu === 'users') {
+      return <UsersSection />
     }
     const table = tables[activeMenu]
     if (!table) return null

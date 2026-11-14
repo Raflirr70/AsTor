@@ -45,7 +45,7 @@ func (r *authRepositoryImpl) Update(ctx context.Context, user *entity.Users) err
 }
 func (r *authRepositoryImpl) FindAll(ctx context.Context) ([]entity.Users, error) {
 	var users []entity.Users
-	if err := dbFromContext(ctx, r.db).WithContext(ctx).Find(&users).Error; err != nil {
+	if err := dbFromContext(ctx, r.db).WithContext(ctx).Preload("Role").Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil

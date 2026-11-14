@@ -81,8 +81,7 @@ func (u *loanUsecaseImpl) Approved(ctx context.Context, adminID uint, loan *enti
 		return u.activityLogRepo.Create(ctx, log)
 	})
 }
-func (u *loanUsecaseImpl) Returned(ctx context.Context, userID uint, loan *entity.Loans, status string) error {
-	fmt.Printf("status : %s", status)
+func (u *loanUsecaseImpl) Returned(ctx context.Context, userID uint, loan *entity.Loans, defaultStatus string, statuses map[uint]string) error {
 	return u.txRepo.WithinTransaction(ctx, func(ctx context.Context) error {
 		loan, err := u.loanRepo.FetchByID(ctx, loan.ID)
 		if err != nil {
@@ -96,13 +95,25 @@ func (u *loanUsecaseImpl) Returned(ctx context.Context, userID uint, loan *entit
 			if err := u.loanRepo.Update(ctx, loan); err != nil {
 				return fmt.Errorf("failed to update loan: %w", err)
 			}
-			asset, err := u.assetRepo.FetchByID(ctx, loan.LoanDetails.AssetID)
-			if err != nil || asset == nil {
-				return fmt.Errorf("failed to fetch loan: %w", err)
-			}
-			asset.Status = status
-			if err := u.assetRepo.Update(ctx, asset); err != nil {
-				return fmt.Errorf("failed to update status assets: %w", err)
+
+			for _, detail := range loan.LoanDetails {
+				asset, err := u.assetRepo.FetchByID(ctx, detail.AssetID)
+				if err != nil || asset == nil {
+					continue
+				}
+				st := defaultStatus
+				if statuses != nil {
+					if val, ok := statuses[detail.AssetID]; ok && val != "" {
+						st = val
+					}
+				}
+				if st == "" {
+					st = "Baik"
+				}
+				asset.Status = st
+				if err := u.assetRepo.Update(ctx, asset); err != nil {
+					return fmt.Errorf("failed to update status assets: %w", err)
+				}
 			}
 
 			log := &entity.ActivityLogs{
@@ -117,6 +128,7 @@ func (u *loanUsecaseImpl) Returned(ctx context.Context, userID uint, loan *entit
 		return entity.ErrInvalidID
 	})
 }
+
 func (u *loanUsecaseImpl) GetByStatus(ctx context.Context, status string) ([]entity.Loans, error) {
 	return u.loanRepo.FetchByStatus(ctx, status)
 }

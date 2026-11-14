@@ -10,5 +10,5 @@ type LoanUsecase interface {
 	GetByStatus(ctx context.Context, status string) ([]entity.Loans, error)
 	GetAll(ctx context.Context) ([]entity.Loans, error)
 	Approved(ctx context.Context, adminID uint, loan *entity.Loans) error
-	Returned(ctx context.Context, userID uint, loan *entity.Loans, status string) error
+	Returned(ctx context.Context, userID uint, loan *entity.Loans, defaultStatus string, statuses map[uint]string) error
 }

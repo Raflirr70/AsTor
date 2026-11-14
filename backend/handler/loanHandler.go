@@ -104,7 +104,8 @@ func (h *LoanHandler) Returned(c *gin.Context) {
 		return
 	}
 	var req struct {
-		Status string `json:"status"`
+		Statuses map[uint]string `json:"statuses"` // asset_id -> status
+		Status   string          `json:"status"`   // fallback single status
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -112,12 +113,9 @@ func (h *LoanHandler) Returned(c *gin.Context) {
 		return
 	}
 
-	if req.Status == "" {
-		req.Status = "Baik"
-	}
 	userID := c.GetUint("user_id")
 	loan := &entity.Loans{ID: uint(id)}
-	if err := h.loanUsecase.Returned(c.Request.Context(), userID, loan, req.Status); err != nil {
+	if err := h.loanUsecase.Returned(c.Request.Context(), userID, loan, req.Status, req.Statuses); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "loan not found")
 			return
@@ -125,5 +123,5 @@ func (h *LoanHandler) Returned(c *gin.Context) {
 		response.Internal(c, "failed to return loan")
 		return
 	}
-	response.OK(c, nil, "loan approved successfully")
+	response.OK(c, nil, "loan returned successfully")
 }

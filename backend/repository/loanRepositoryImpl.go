@@ -49,3 +49,10 @@ func (r *loanRepositoryImpl) FetchByID(ctx context.Context, id uint) (*entity.Lo
 func (r *loanRepositoryImpl) Update(ctx context.Context, loan *entity.Loans) error {
 	return dbFromContext(ctx, r.db).WithContext(ctx).Where("id = ?", loan.ID).Updates(loan).Error
 }
+func (r *loanRepositoryImpl) Delete(ctx context.Context, loan *entity.Loans) error {
+	return dbFromContext(ctx, r.db).WithContext(ctx).Delete(loan).Error
+}
+
+func (r *loanRepositoryImpl) DeleteDetailsByLoanID(ctx context.Context, loanID uint) error {
+	return dbFromContext(ctx, r.db).WithContext(ctx).Where("loan_id = ?", loanID).Delete(&entity.LoanDetails{}).Error
+}
